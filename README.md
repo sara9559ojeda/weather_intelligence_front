@@ -25,6 +25,18 @@ npm run dev        # http://localhost:5173
 npm run build      # comprobación de tipos + build de producción en dist/
 ```
 
+## Producción en Vercel
+
+En Vercel no hay Nginx, así que el frontend llama directamente a la API pública
+del backend. Se configura con una variable de entorno **de build**:
+
+| Variable       | Ejemplo                                           |
+|----------------|---------------------------------------------------|
+| `VITE_API_URL` | `https://backend-production-0ae18.up.railway.app` |
+
+El backend debe incluir el dominio de Vercel en `BACKEND_CORS_ORIGINS`.
+Sin `VITE_API_URL` el frontend usa la ruta relativa `/api` (desarrollo y Docker).
+
 ## Producción (Docker)
 
 La imagen construye la SPA y la sirve con Nginx. Dos variables de entorno, leídas
