@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { API_BASE } from "../api/client";
 
 type Status = "connecting" | "live" | "offline";
 
@@ -13,7 +14,7 @@ export function useSSE(): { status: Status; lastEventAt: Date | null } {
   const [lastEventAt, setLastEventAt] = useState<Date | null>(null);
 
   useEffect(() => {
-    const source = new EventSource("/api/stream");
+    const source = new EventSource(`${API_BASE}/stream`);
 
     source.onopen = () => setStatus("live");
     source.onerror = () => setStatus("offline");

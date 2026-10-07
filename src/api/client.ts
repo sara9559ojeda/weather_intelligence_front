@@ -1,7 +1,9 @@
-// Cliente HTTP hacia el backend. La base es relativa ("/api"): en desarrollo la
-// redirige Vite; en producción, Nginx.
+// Cliente HTTP hacia el backend. Sin VITE_API_URL la base es relativa ("/api"):
+// en desarrollo la redirige Vite y en Docker, Nginx. Con VITE_API_URL (p. ej. en
+// Vercel) se llama directamente a la API pública del backend.
 
-const BASE = "/api";
+export const API_BASE = `${import.meta.env.VITE_API_URL ?? ""}/api`;
+const BASE = API_BASE;
 
 export class ApiError extends Error {
   status: number;
