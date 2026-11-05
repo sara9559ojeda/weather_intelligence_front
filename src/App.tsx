@@ -44,8 +44,14 @@ export function App() {
   const insight = useInsight(true);
 
   const refreshInsight = async () => {
-    const fresh = await apiGet<Insight>("/insights", { force: true });
-    queryClient.setQueryData(["insight"], fresh);
+    try {
+      const fresh = await apiGet<Insight>("/insights", { force: true });
+      queryClient.setQueryData(["insight"], fresh);
+    } catch (err) {
+      // Se conserva la interpretación anterior. Sin el catch, un fallo de red
+      // quedaba como promesa rechazada sin capturar (el botón no la espera).
+      console.warn("No se pudo regenerar la interpretación:", err);
+    }
   };
 
   const currentObs = dashboard.data?.current.observation;
