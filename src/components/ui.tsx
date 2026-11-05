@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 import { motion } from "motion/react";
 
 /* Colores para gráficos (leídos de los tokens CSS en index.css). */
@@ -100,6 +100,23 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       )}
     </div>
   );
+}
+
+/**
+ * Contiene el fallo de un panel (p. ej. que no llegue su chunk diferido tras
+ * un despliegue) para que no desmonte toda la app; muestra el ErrorState de
+ * siempre en su lugar.
+ */
+export class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  render() {
+    return this.state.error ? <ErrorState message={this.state.error.message} /> : this.props.children;
+  }
 }
 
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {

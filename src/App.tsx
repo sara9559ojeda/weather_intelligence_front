@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiGet } from "./api/client";
 import {
@@ -15,18 +15,38 @@ import { useTheme } from "./hooks/useTheme";
 import { relativeAge } from "./lib/format";
 import { weatherVisual } from "./lib/weatherCode";
 import { AiInsights } from "./components/AiInsights";
-import { AnomaliesPanel } from "./components/AnomaliesPanel";
-import { ClustersPanel } from "./components/ClustersPanel";
 import { CorrelationHeatmap } from "./components/CorrelationHeatmap";
 import { CurrentConditions } from "./components/CurrentConditions";
 import { HistoricalComparison } from "./components/HistoricalComparison";
-import { HistoryCharts } from "./components/HistoryCharts";
 import { ModelPerformance } from "./components/ModelPerformance";
-import { PredictedVsActual } from "./components/PredictedVsActual";
-import { PredictionPanel } from "./components/PredictionPanel";
-import { ScatterTempHumidity } from "./components/ScatterTempHumidity";
-import { ErrorState, Skeleton } from "./components/ui";
+import { ErrorBoundary, ErrorState, Skeleton } from "./components/ui";
 import { WeatherBackground } from "./components/WeatherBackground";
+
+// Paneles con Recharts: chunk aparte para que la cabecera y el héroe no
+// esperen a esa librería. La descarga arranca en cuanto se evalúa este módulo,
+// en paralelo con la petición del dashboard, así que normalmente ya está lista
+// cuando llegan los datos y el skeleton ni llega a verse.
+const loadCharts = () => import("./components/charts");
+loadCharts().catch(() => {
+  /* si falla, cada panel lo reintenta al renderizarse y lo muestra su ErrorBoundary */
+});
+const PredictionPanel = lazy(() => loadCharts().then((m) => ({ default: m.PredictionPanel })));
+const ClustersPanel = lazy(() => loadCharts().then((m) => ({ default: m.ClustersPanel })));
+const HistoryCharts = lazy(() => loadCharts().then((m) => ({ default: m.HistoryCharts })));
+const ScatterTempHumidity = lazy(() => loadCharts().then((m) => ({ default: m.ScatterTempHumidity })));
+const AnomaliesPanel = lazy(() => loadCharts().then((m) => ({ default: m.AnomaliesPanel })));
+const PredictedVsActual = lazy(() => loadCharts().then((m) => ({ default: m.PredictedVsActual })));
+
+/** Hueco para un panel diferido: skeleton mientras carga el chunk, error si no llega. */
+function ChartSlot({ skeleton, children }: { skeleton: string; children: ReactNode }) {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<Skeleton className={`${skeleton} rounded-[var(--radius-card)]`} />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
 
 type ConnStatus = ReturnType<typeof useSSE>["status"];
 
@@ -145,50 +165,62 @@ export function App() {
             <CurrentConditions data={dashboard.data.current} recentObservations={history.data} />
 
             {/* Fila 1 — predicción a corto plazo */}
-            <PredictionPanel
-              predictions={dashboard.data.predictions}
-              currentTemp={dashboard.data.current.observation.temperature_2m}
-              modelPerformance={dashboard.data.model_performance}
-            />
+            <ChartSlot skeleton="h-80">
+              <PredictionPanel
+                predictions={dashboard.data.predictions}
+                currentTemp={dashboard.data.current.observation.temperature_2m}
+                modelPerformance={dashboard.data.model_performance}
+              />
+            </ChartSlot>
 
             {/* Fila 2 — comparación histórica + regímenes */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
               <HistoricalComparison data={dashboard.data.historical_comparison} />
-              <ClustersPanel
-                data={dashboard.data.clusters}
-                activeCluster={dashboard.data.historical_comparison.cluster_id}
-              />
+              <ChartSlot skeleton="h-80">
+                <ClustersPanel
+                  data={dashboard.data.clusters}
+                  activeCluster={dashboard.data.historical_comparison.cluster_id}
+                />
+              </ChartSlot>
             </div>
 
             {/* Fila 3 — series temporales */}
-            <HistoryCharts
-              data={history.data}
-              isLoading={history.isLoading}
-              error={history.error}
-              hours={historyHours}
-              onHoursChange={setHistoryHours}
-            />
+            <ChartSlot skeleton="h-96">
+              <HistoryCharts
+                data={history.data}
+                isLoading={history.isLoading}
+                error={history.error}
+                hours={historyHours}
+                onHoursChange={setHistoryHours}
+              />
+            </ChartSlot>
 
             {/* Fila 4 — bivariado + correlaciones */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <ScatterTempHumidity data={history.data} isLoading={history.isLoading} />
+              <ChartSlot skeleton="h-96">
+                <ScatterTempHumidity data={history.data} isLoading={history.isLoading} />
+              </ChartSlot>
               <CorrelationHeatmap data={correlations.data} isLoading={correlations.isLoading} />
             </div>
 
             {/* Fila 5 — anomalías + predicho vs real */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <AnomaliesPanel
-                data={anomalies.data}
-                recent={dashboard.data.recent_anomalies}
-                isLoading={anomalies.isLoading}
-              />
-              <PredictedVsActual
-                data={predictionHistory.data}
-                isLoading={predictionHistory.isLoading}
-                error={predictionHistory.error}
-                horizon={pvaHorizon}
-                onHorizonChange={setPvaHorizon}
-              />
+              <ChartSlot skeleton="h-96">
+                <AnomaliesPanel
+                  data={anomalies.data}
+                  recent={dashboard.data.recent_anomalies}
+                  isLoading={anomalies.isLoading}
+                />
+              </ChartSlot>
+              <ChartSlot skeleton="h-96">
+                <PredictedVsActual
+                  data={predictionHistory.data}
+                  isLoading={predictionHistory.isLoading}
+                  error={predictionHistory.error}
+                  horizon={pvaHorizon}
+                  onHorizonChange={setPvaHorizon}
+                />
+              </ChartSlot>
             </div>
 
             {/* Fila 6 — rendimiento del modelo */}
