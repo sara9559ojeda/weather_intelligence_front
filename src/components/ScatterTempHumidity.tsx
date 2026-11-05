@@ -30,7 +30,7 @@ export function ScatterTempHumidity({
     [data],
   );
 
-  const r = pearson(points);
+  const r = useMemo(() => pearson(points), [points]);
 
   return (
     <Card

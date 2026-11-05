@@ -36,6 +36,21 @@ export function PredictionPanel({
     : undefined;
   const skill = champion ? testMetric(champion, "skill_vs_persistence") : undefined;
 
+  // Memorizado: Recharts recalcula ejes y puntos cada vez que cambia la
+  // identidad de `data`, y App se re-renderiza con cada respuesta de la API.
+  const chartData = useMemo(() => {
+    const points: { h: number; temp: number; lo: number | null; hi: number | null }[] =
+      sorted.map((p) => ({
+        h: p.horizon_hours,
+        temp: p.predicted_temperature,
+        lo: p.lower_bound,
+        hi: p.upper_bound,
+      }));
+    return currentTemp !== null
+      ? [{ h: 0, temp: currentTemp, lo: currentTemp, hi: currentTemp }, ...points]
+      : points;
+  }, [sorted, currentTemp]);
+
   if (predictions.length === 0) {
     return (
       <section className="glass rounded-[var(--radius-card)] px-6 py-6">
@@ -51,18 +66,6 @@ export function PredictionPanel({
       </section>
     );
   }
-
-  const chartData = [
-    currentTemp !== null
-      ? { h: 0, temp: currentTemp, lo: currentTemp, hi: currentTemp }
-      : null,
-    ...sorted.map((p) => ({
-      h: p.horizon_hours,
-      temp: p.predicted_temperature,
-      lo: p.lower_bound,
-      hi: p.upper_bound,
-    })),
-  ].filter(Boolean) as { h: number; temp: number; lo: number; hi: number }[];
 
   const delta =
     soonest && currentTemp !== null ? soonest.predicted_temperature - currentTemp : null;

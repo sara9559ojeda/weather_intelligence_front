@@ -21,19 +21,21 @@ export function AnomaliesPanel({
   recent?: AnomalyRow[];
   isLoading: boolean;
 }) {
-  const points = useMemo(
-    () =>
-      (data ?? []).map((a) => ({
-        t: new Date(a.observed_at).getTime(),
-        score: a.anomaly_score,
-        flag: a.is_anomaly,
-      })),
-    [data],
-  );
+  // Normales y anómalas por separado, memorizadas: pasar arrays nuevos en
+  // cada render obliga a Recharts a recalcular las dos series de puntos.
+  const { normal, flagged } = useMemo(() => {
+    const points = (data ?? []).map((a) => ({
+      t: new Date(a.observed_at).getTime(),
+      score: a.anomaly_score,
+      flag: a.is_anomaly,
+    }));
+    return { normal: points.filter((p) => !p.flag), flagged: points.filter((p) => p.flag) };
+  }, [data]);
 
-  const top = [...(recent ?? [])]
-    .sort((a, b) => a.anomaly_score - b.anomaly_score)
-    .slice(0, 6);
+  const top = useMemo(
+    () => [...(recent ?? [])].sort((a, b) => a.anomaly_score - b.anomaly_score).slice(0, 6),
+    [recent],
+  );
 
   return (
     <Card
@@ -73,11 +75,11 @@ export function AnomaliesPanel({
                 labelFormatter={(t) => timeLabel(new Date(t as number).toISOString())}
               />
               <Scatter
-                data={points.filter((p) => !p.flag)}
+                data={normal}
                 fill={CHART.text}
                 fillOpacity={0.25}
               />
-              <Scatter data={points.filter((p) => p.flag)} fill={CHART.danger} />
+              <Scatter data={flagged} fill={CHART.danger} />
             </ScatterChart>
           </ResponsiveContainer>
         </div>

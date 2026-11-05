@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -19,6 +20,18 @@ export function ClustersPanel({
   data: ClusterModel;
   activeCluster: number | null;
 }) {
+  // Memorizado: Recharts recalcula todo el gráfico si cambia la identidad de `data`.
+  const chartData = useMemo(
+    () =>
+      data.clusters.map((c) => ({
+        name: `#${c.cluster_id}`,
+        label: c.label,
+        pct: c.share_pct,
+        active: c.cluster_id === activeCluster,
+      })),
+    [data.clusters, activeCluster],
+  );
+
   if (!data.clusters.length) {
     return (
       <Card title="Regímenes meteorológicos (K-Means)">
@@ -26,13 +39,6 @@ export function ClustersPanel({
       </Card>
     );
   }
-
-  const chartData = data.clusters.map((c) => ({
-    name: `#${c.cluster_id}`,
-    label: c.label,
-    pct: c.share_pct,
-    active: c.cluster_id === activeCluster,
-  }));
 
   return (
     <Card
