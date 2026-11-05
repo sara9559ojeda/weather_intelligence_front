@@ -105,9 +105,12 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 /**
  * Contiene el fallo de un panel (p. ej. que no llegue su chunk diferido tras
  * un despliegue) para que no desmonte toda la app; muestra el ErrorState de
- * siempre en su lugar.
+ * siempre en su lugar, o `fallback` si se indica (null para capas decorativas).
  */
-export class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+export class ErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ReactNode },
+  { error: Error | null }
+> {
   state: { error: Error | null } = { error: null };
 
   static getDerivedStateFromError(error: Error) {
@@ -115,7 +118,12 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
   }
 
   render() {
-    return this.state.error ? <ErrorState message={this.state.error.message} /> : this.props.children;
+    if (!this.state.error) return this.props.children;
+    return this.props.fallback !== undefined ? (
+      this.props.fallback
+    ) : (
+      <ErrorState message={this.state.error.message} />
+    );
   }
 }
 

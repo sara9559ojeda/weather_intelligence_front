@@ -1,9 +1,16 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { animate, motion, useMotionValue, useSpring, useTransform } from "motion/react";
-import { Particles, ParticlesProvider } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
-import type { Engine, ISourceOptions } from "@tsparticles/engine";
 import type { WeatherCategory } from "../lib/weatherCode";
+import type { ParticleKind } from "./ParticlesLayer";
+import { ErrorBoundary } from "./ui";
+
+// tsParticles (motor + preset slim) solo hace falta en algunos cielos y nunca
+// con movimiento reducido: se carga aparte para no engordar el bundle inicial.
+// Ya era asíncrono (el motor se inicializa con loadSlim), así que el momento
+// en que aparecen las partículas apenas cambia.
+const ParticlesLayer = lazy(() =>
+  import("./ParticlesLayer").then((m) => ({ default: m.ParticlesLayer })),
+);
 
 /**
  * Escena meteorológica cinematográfica, fija detrás de toda la interfaz.
@@ -56,82 +63,6 @@ const GLOW: Record<
 };
 
 type Particle = { x: number; y: number; vx: number; vy: number; size: number; phase: number };
-
-async function initEngine(engine: Engine) {
-  await loadSlim(engine);
-}
-
-function particleOptions(
-  kind: "stars-dense" | "stars-faint" | "dust" | "snow",
-): ISourceOptions {
-  const base: ISourceOptions = {
-    fullScreen: { enable: false },
-    detectRetina: true,
-    fpsLimit: 60,
-    interactivity: { events: { onHover: { enable: false }, onClick: { enable: false } } },
-    background: { color: "transparent" },
-  };
-
-  if (kind === "stars-dense" || kind === "stars-faint") {
-    const dense = kind === "stars-dense";
-    return {
-      ...base,
-      particles: {
-        number: { value: dense ? 110 : 28 },
-        color: { value: "#eaf1ff" },
-        opacity: {
-          value: { min: 0.12, max: dense ? 0.95 : 0.55 },
-          animation: { enable: true, speed: 0.35, sync: false, startValue: "random" },
-        },
-        size: { value: { min: 0.4, max: dense ? 1.7 : 1.2 } },
-        move: { enable: false },
-        shape: { type: "circle" },
-      },
-    };
-  }
-
-  if (kind === "dust") {
-    return {
-      ...base,
-      particles: {
-        number: { value: 16 },
-        color: { value: "#ffedc4" },
-        opacity: { value: { min: 0.04, max: 0.16 } },
-        size: { value: { min: 1, max: 3 } },
-        shape: { type: "circle" },
-        move: {
-          enable: true,
-          speed: { min: 0.15, max: 0.4 },
-          direction: "none",
-          random: true,
-          straight: false,
-          outModes: { default: "out" },
-        },
-      },
-    };
-  }
-
-  // snow
-  return {
-    ...base,
-    particles: {
-      number: { value: 65 },
-      color: { value: "#ffffff" },
-      opacity: { value: { min: 0.35, max: 0.85 } },
-      size: { value: { min: 1.4, max: 3.6 } },
-      shape: { type: "circle" },
-      move: {
-        enable: true,
-        direction: "bottom",
-        speed: { min: 0.8, max: 2.2 },
-        straight: false,
-        random: true,
-        outModes: { default: "out" },
-      },
-      wobble: { enable: true, distance: 10, speed: { min: 4, max: 10 } },
-    },
-  };
-}
 
 /*
  * memo: App se vuelve a renderizar con cada respuesta de la API o evento SSE;
@@ -469,7 +400,7 @@ export const WeatherBackground = memo(function WeatherBackground({
     };
   }, [category, isDay, reduceMotion, svx, svy]);
 
-  const particleKind = useMemo<"stars-dense" | "stars-faint" | "dust" | "snow" | null>(() => {
+  const particleKind = useMemo<ParticleKind | null>(() => {
     if (reduceMotion) return null;
     if (category === "snow") return "snow";
     if (!isDay && category === "clear") return "stars-dense";
@@ -477,14 +408,6 @@ export const WeatherBackground = memo(function WeatherBackground({
     if (isDay && category === "clear") return "dust";
     return null;
   }, [category, isDay, reduceMotion]);
-
-  // <Particles> destruye y recarga el contenedor cada vez que cambia la
-  // identidad de `options`: hay que mantenerla estable entre renders o las
-  // estrellas/nieve se regeneran (parpadeo) con cada actualización de datos.
-  const particleOpts = useMemo(
-    () => (particleKind ? particleOptions(particleKind) : null),
-    [particleKind],
-  );
 
   const glow = GLOW[key] ?? GLOW["cloudy-day"];
 
@@ -509,16 +432,14 @@ export const WeatherBackground = memo(function WeatherBackground({
 
       <canvas ref={canvasRef} className="absolute inset-0" />
 
-      {particleKind && particleOpts && (
+      {particleKind && (
         <motion.div className="absolute inset-0" style={{ x: particleX, y: particleY }}>
-          <ParticlesProvider init={initEngine}>
-            <Particles
-              key={key + particleKind}
-              id={`wi-particles-${key}`}
-              options={particleOpts}
-              style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-            />
-          </ParticlesProvider>
+          {/* Decorativa: si su chunk no llega, simplemente no hay partículas. */}
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <ParticlesLayer kind={particleKind} sceneKey={key} />
+            </Suspense>
+          </ErrorBoundary>
         </motion.div>
       )}
 
