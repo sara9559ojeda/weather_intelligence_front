@@ -28,7 +28,7 @@ export function CorrelationHeatmap({
               <tr>
                 <th className="w-28" />
                 {data.variables.map((v) => (
-                  <th key={v} className="p-1 text-[var(--color-text-faint)]">
+                  <th key={v} scope="col" className="p-1 text-[var(--color-text-faint)]">
                     {varLabel(v).split(" ")[0]}
                   </th>
                 ))}
@@ -37,7 +37,7 @@ export function CorrelationHeatmap({
             <tbody>
               {data.variables.map((rowVar, i) => (
                 <tr key={rowVar}>
-                  <th className="pr-2 text-right font-normal text-[var(--color-text-dim)]">
+                  <th scope="row" className="pr-2 text-right font-normal text-[var(--color-text-dim)]">
                     {varLabel(rowVar)}
                   </th>
                   {(data.matrix[i] ?? []).map((v, j) => (

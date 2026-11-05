@@ -52,11 +52,12 @@ export function HistoryCharts({
       title="Evolución temporal"
       subtitle="observaciones históricas y en tiempo real"
       right={
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="group" aria-label="Rango temporal">
           {RANGES.map((r) => (
             <button
               key={r.hours}
               onClick={() => onHoursChange(r.hours)}
+              aria-pressed={hours === r.hours}
               className={`rounded-full px-2.5 py-1 text-[11px] transition-colors ${
                 hours === r.hours
                   ? "glass-soft text-[var(--color-accent)]"
@@ -69,11 +70,12 @@ export function HistoryCharts({
         </div>
       }
     >
-      <div className="mb-3 flex gap-2">
+      <div className="mb-3 flex gap-2" role="group" aria-label="Variable">
         {(Object.keys(SERIES) as (keyof typeof SERIES)[]).map((k) => (
           <button
             key={k}
             onClick={() => setMetric(k)}
+            aria-pressed={metric === k}
             className={`rounded-full px-3 py-1 text-xs transition-colors ${
               metric === k
                 ? "glass-soft text-[var(--color-text)]"

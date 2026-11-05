@@ -72,6 +72,7 @@ function ConnectionStatus({ status, lastEventAt }: { status: ConnStatus; lastEve
   return (
     <div className="flex items-center gap-2 text-xs">
       <span
+        aria-hidden
         className={`inline-block h-1.5 w-1.5 rounded-full ${
           status === "live"
             ? "bg-[var(--color-ok)]"
@@ -80,7 +81,8 @@ function ConnectionStatus({ status, lastEventAt }: { status: ConnStatus; lastEve
               : "bg-[var(--color-danger)]"
         }`}
       />
-      <span className="hidden text-[var(--color-text-dim)] sm:inline">
+      {/* En móvil el texto se oculta a la vista pero no a los lectores de pantalla. */}
+      <span className="sr-only text-[var(--color-text-dim)] sm:not-sr-only sm:inline">
         {status === "live" ? "en vivo" : status === "connecting" ? "conectando" : "sin conexión"}
         {lastEventAt && ` · actualizado ${relativeAge(ageMinutes)}`}
       </span>
@@ -145,7 +147,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[var(--container)] px-4 py-8 sm:px-6">
+      <main className="mx-auto max-w-[var(--container)] px-4 py-8 sm:px-6" aria-busy={dashboard.isLoading}>
         {dashboard.isLoading ? (
           <div className="space-y-10">
             <Skeleton className="h-72 rounded-[var(--radius-card)]" />

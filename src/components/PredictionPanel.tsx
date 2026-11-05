@@ -171,12 +171,15 @@ export function PredictionPanel({
         <div className="mt-5 border-t border-[color-mix(in_srgb,var(--color-text)_8%,transparent)] pt-4">
           <button
             onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="prediction-why"
             className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
           >
             <motion.span
               animate={{ rotate: open ? 90 : 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="inline-block"
+              aria-hidden
             >
               ›
             </motion.span>
@@ -185,6 +188,7 @@ export function PredictionPanel({
           <AnimatePresence initial={false}>
             {open && (
               <motion.div
+                id="prediction-why"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}

@@ -54,11 +54,12 @@ export function PredictedVsActual({
             />
             banda
           </label>
-          <div className="flex gap-1">
+          <div className="flex gap-1" role="group" aria-label="Horizonte de predicción">
             {HORIZONS.map((h) => (
               <button
                 key={h}
                 onClick={() => onHorizonChange(h)}
+                aria-pressed={horizon === h}
                 className={`rounded-full px-2.5 py-1 text-[11px] transition-colors ${
                   horizon === h
                     ? "glass-soft text-[var(--color-accent)]"

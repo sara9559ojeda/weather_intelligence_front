@@ -55,7 +55,8 @@ export function HistoricalComparison({ data }: { data: Comparison }) {
 function PercentileBar({ percentile }: { percentile: number }) {
   const extreme = percentile >= 90 || percentile <= 10;
   return (
-    <div className="mt-1.5 h-2 w-full rounded-full bg-[var(--color-surface-2)]">
+    // Decorativa: el percentil ya se lee en el texto de encima.
+    <div className="mt-1.5 h-2 w-full rounded-full bg-[var(--color-surface-2)]" aria-hidden>
       <div
         className="h-2 rounded-full"
         style={{
