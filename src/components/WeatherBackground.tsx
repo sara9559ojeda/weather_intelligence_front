@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { animate, motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { Particles, ParticlesProvider } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
@@ -133,7 +133,11 @@ function particleOptions(
   };
 }
 
-export function WeatherBackground({
+/*
+ * memo: App se vuelve a renderizar con cada respuesta de la API o evento SSE;
+ * el fondo solo depende de dos primitivas, así que no hay nada que repintar.
+ */
+export const WeatherBackground = memo(function WeatherBackground({
   category,
   isDay,
 }: {
@@ -426,6 +430,14 @@ export function WeatherBackground({
     return null;
   }, [category, isDay, reduceMotion]);
 
+  // <Particles> destruye y recarga el contenedor cada vez que cambia la
+  // identidad de `options`: hay que mantenerla estable entre renders o las
+  // estrellas/nieve se regeneran (parpadeo) con cada actualización de datos.
+  const particleOpts = useMemo(
+    () => (particleKind ? particleOptions(particleKind) : null),
+    [particleKind],
+  );
+
   const glow = GLOW[key] ?? GLOW["cloudy-day"];
 
   return (
@@ -449,13 +461,13 @@ export function WeatherBackground({
 
       <canvas ref={canvasRef} className="absolute inset-0" />
 
-      {particleKind && (
+      {particleKind && particleOpts && (
         <motion.div className="absolute inset-0" style={{ x: particleX, y: particleY }}>
           <ParticlesProvider init={initEngine}>
             <Particles
               key={key + particleKind}
               id={`wi-particles-${key}`}
-              options={particleOptions(particleKind)}
+              options={particleOpts}
               style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
             />
           </ParticlesProvider>
@@ -468,4 +480,4 @@ export function WeatherBackground({
       />
     </div>
   );
-}
+});
