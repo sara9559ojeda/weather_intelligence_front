@@ -96,8 +96,8 @@ export function AnomaliesPanel({
             </tr>
           </thead>
           <tbody className="mono">
-            {top.map((a, i) => (
-              <tr key={i} className="border-t border-[var(--color-border)]">
+            {top.map((a) => (
+              <tr key={`${a.observed_at}-${a.detector}`} className="border-t border-[var(--color-border)]">
                 <td className="py-1.5">{timeLabel(a.observed_at)}</td>
                 <td className="py-1.5 text-right">{num(a.temperature_2m)}</td>
                 <td className="py-1.5 text-right">{num(a.relative_humidity_2m, 0)}</td>

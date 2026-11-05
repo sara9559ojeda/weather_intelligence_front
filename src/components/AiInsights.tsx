@@ -67,8 +67,9 @@ export function AiInsights({
             </p>
           )}
           <div className="grid gap-4 sm:grid-cols-2">
-            {sections.map((s) => (
-              <div key={s.heading}>
+            {/* El índice desambigua: el modelo puede repetir un encabezado. */}
+            {sections.map((s, i) => (
+              <div key={`${i}-${s.heading}`}>
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">
                   {s.heading}
                 </h3>
