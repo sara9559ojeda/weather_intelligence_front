@@ -36,9 +36,12 @@ export function CurrentConditions({
 
   const { hi, lo } = useMemo(() => {
     const cutoff = Date.now() - 24 * 60 * 60 * 1000;
-    const temps = (recentObservations ?? [])
-      .filter((r) => new Date(r.observed_at).getTime() >= cutoff && r.temperature_2m !== null)
-      .map((r) => r.temperature_2m as number);
+    // flatMap filtra y estrecha el tipo a la vez (sin `as number`).
+    const temps = (recentObservations ?? []).flatMap((r) =>
+      r.temperature_2m !== null && new Date(r.observed_at).getTime() >= cutoff
+        ? [r.temperature_2m]
+        : [],
+    );
     if (o.temperature_2m !== null) temps.push(o.temperature_2m);
     if (!temps.length) return { hi: null, lo: null };
     return { hi: Math.max(...temps), lo: Math.min(...temps) };

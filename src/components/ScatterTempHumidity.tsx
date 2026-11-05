@@ -22,9 +22,11 @@ export function ScatterTempHumidity({
 }) {
   const points = useMemo(
     () =>
-      (data ?? [])
-        .filter((o) => o.temperature_2m !== null && o.relative_humidity_2m !== null)
-        .map((o) => ({ x: o.relative_humidity_2m as number, y: o.temperature_2m as number })),
+      (data ?? []).flatMap((o) =>
+        o.temperature_2m !== null && o.relative_humidity_2m !== null
+          ? [{ x: o.relative_humidity_2m, y: o.temperature_2m }]
+          : [],
+      ),
     [data],
   );
 

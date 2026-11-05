@@ -42,7 +42,7 @@ export function HistoryCharts({
     () =>
       (data ?? []).map((o) => ({
         t: o.observed_at,
-        value: o[metric] as number | null,
+        value: o[metric],
       })),
     [data, metric],
   );
