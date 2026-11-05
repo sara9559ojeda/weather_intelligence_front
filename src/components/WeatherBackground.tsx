@@ -193,11 +193,14 @@ export const WeatherBackground = memo(function WeatherBackground({
 
     let width = 0;
     let height = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let dpr = 1;
 
+    // Asignar width/height al canvas lo borra. El dpr se relee porque cambia
+    // al mover la ventana a un monitor con otra densidad o al hacer zoom.
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas!.width = width * dpr;
       canvas!.height = height * dpr;
       canvas!.style.width = `${width}px`;
@@ -205,7 +208,6 @@ export const WeatherBackground = memo(function WeatherBackground({
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
-    window.addEventListener("resize", resize);
 
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
@@ -290,13 +292,14 @@ export const WeatherBackground = memo(function WeatherBackground({
       nextFlash = performance.now() + rand(5000, 11000);
     }
     seed();
-    window.addEventListener("resize", seed);
 
     let raf = 0;
     let running = true;
     let last = performance.now();
 
-    function drawFrame(now: number) {
+    // Pinta un fotograma avanzando la simulación `now - last` ms. No programa
+    // el siguiente: de eso se encarga loop(), así que puede llamarse aparte.
+    function paint(now: number) {
       const dt = Math.min(48, now - last) / 1000;
       last = now;
 
@@ -390,24 +393,63 @@ export const WeatherBackground = memo(function WeatherBackground({
           flashAlpha *= 0.83;
         }
       }
+    }
 
-      if (running && !reduceMotion) raf = requestAnimationFrame(drawFrame);
+    function loop(now: number) {
+      paint(now);
+      if (running) raf = requestAnimationFrame(loop);
+    }
+
+    // Repinta sin avanzar la simulación (fotograma único o tras redimensionar).
+    function repaint() {
+      last = performance.now();
+      paint(last);
     }
 
     if (reduceMotion) {
-      drawFrame(performance.now());
+      repaint();
     } else {
-      raf = requestAnimationFrame(drawFrame);
+      raf = requestAnimationFrame(loop);
     }
 
+    // "resize" llega en ráfagas (decenas por segundo al arrastrar): se agrupa
+    // en un solo ajuste por fotograma y se ignora si nada cambió de verdad.
+    let resizeRaf = 0;
+    function onResize() {
+      if (resizeRaf) return;
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = 0;
+        const prevW = width;
+        const prevH = height;
+        const prevDpr = dpr;
+        if (
+          window.innerWidth === prevW &&
+          window.innerHeight === prevH &&
+          Math.min(window.devicePixelRatio || 1, 2) === prevDpr
+        ) {
+          return;
+        }
+        resize();
+        // Re-sembrar recoloca nubes y gotas al azar (salto visible): solo se
+        // hace si cambia el ancho o la altura de forma notable, no cuando la
+        // barra del navegador móvil aparece/desaparece al hacer scroll.
+        if (width !== prevW || Math.abs(height - prevH) > prevH * 0.25) seed();
+        // Redimensionar borra el canvas: se repinta ya, sin esperar al bucle
+        // (y con movimiento reducido no hay bucle, quedaría vacío).
+        repaint();
+      });
+    }
+    window.addEventListener("resize", onResize);
+
     function onVisibility() {
+      if (reduceMotion) return;
+      cancelAnimationFrame(raf); // nunca dos bucles a la vez
       if (document.hidden) {
         running = false;
-        cancelAnimationFrame(raf);
-      } else if (!reduceMotion) {
+      } else {
         running = true;
         last = performance.now();
-        raf = requestAnimationFrame(drawFrame);
+        raf = requestAnimationFrame(loop);
       }
     }
     document.addEventListener("visibilitychange", onVisibility);
@@ -415,8 +457,8 @@ export const WeatherBackground = memo(function WeatherBackground({
     return () => {
       running = false;
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("resize", seed);
+      cancelAnimationFrame(resizeRaf);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [category, isDay, reduceMotion, svx, svy]);
