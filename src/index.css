@@ -160,11 +160,6 @@ body {
   transition: background 0.6s ease, border-color 0.6s ease;
 }
 
-/* Divisor apenas visible — para separar valores "que respiran" sin caja. */
-.hairline {
-  background: color-mix(in srgb, var(--color-text) 10%, transparent);
-}
-
 /* Deriva atmosférica lentísima del cielo: nunca estático del todo. */
 @keyframes sky-breathe {
   0%,

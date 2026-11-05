@@ -46,10 +46,6 @@ export function timeLabel(iso: string): string {
   });
 }
 
-export function hourLabel(iso: string): string {
-  return new Date(iso).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-}
-
 export function relativeAge(minutes: number): string {
   if (minutes < 1) return "ahora mismo";
   if (minutes < 60) return `hace ${Math.round(minutes)} min`;
