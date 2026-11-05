@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiGet } from "./api/client";
 import {
@@ -27,6 +27,46 @@ import { PredictionPanel } from "./components/PredictionPanel";
 import { ScatterTempHumidity } from "./components/ScatterTempHumidity";
 import { ErrorState, Skeleton } from "./components/ui";
 import { WeatherBackground } from "./components/WeatherBackground";
+
+type ConnStatus = ReturnType<typeof useSSE>["status"];
+
+/**
+ * Indicador de conexión en vivo. Lleva su propio reloj para que
+ * "actualizado hace X" avance con el tiempo: antes solo se recalculaba cuando
+ * App se re-renderizaba y podía quedarse en "ahora mismo" durante una hora.
+ * Al vivir aparte, el tic no re-renderiza el resto del dashboard.
+ */
+function ConnectionStatus({ status, lastEventAt }: { status: ConnStatus; lastEventAt: Date | null }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!lastEventAt) return;
+    const id = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(id);
+  }, [lastEventAt]);
+
+  // Justo tras un evento `now` puede ser anterior a lastEventAt: la edad sale
+  // negativa y relativeAge() la muestra como "ahora mismo", que es lo correcto.
+  const ageMinutes = lastEventAt ? (now - lastEventAt.getTime()) / 60000 : 0;
+
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span
+        className={`inline-block h-1.5 w-1.5 rounded-full ${
+          status === "live"
+            ? "bg-[var(--color-ok)]"
+            : status === "connecting"
+              ? "bg-[var(--color-warn)]"
+              : "bg-[var(--color-danger)]"
+        }`}
+      />
+      <span className="hidden text-[var(--color-text-dim)] sm:inline">
+        {status === "live" ? "en vivo" : status === "connecting" ? "conectando" : "sin conexión"}
+        {lastEventAt && ` · actualizado ${relativeAge(ageMinutes)}`}
+      </span>
+    </div>
+  );
+}
 
 export function App() {
   const queryClient = useQueryClient();
@@ -73,21 +113,7 @@ export function App() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs">
-              <span
-                className={`inline-block h-1.5 w-1.5 rounded-full ${
-                  sseStatus === "live"
-                    ? "bg-[var(--color-ok)]"
-                    : sseStatus === "connecting"
-                      ? "bg-[var(--color-warn)]"
-                      : "bg-[var(--color-danger)]"
-                }`}
-              />
-              <span className="hidden text-[var(--color-text-dim)] sm:inline">
-                {sseStatus === "live" ? "en vivo" : sseStatus === "connecting" ? "conectando" : "sin conexión"}
-                {lastEventAt && ` · actualizado ${relativeAge((Date.now() - lastEventAt.getTime()) / 60000)}`}
-              </span>
-            </div>
+            <ConnectionStatus status={sseStatus} lastEventAt={lastEventAt} />
             <button
               onClick={toggleTheme}
               aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
