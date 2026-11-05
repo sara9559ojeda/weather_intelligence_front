@@ -10,8 +10,7 @@ import {
 } from "recharts";
 import type { ClusterModel } from "../api/types";
 import { num } from "../lib/format";
-import { CHART, Card, EmptyState } from "./ui";
-import { tooltipStyle } from "./PredictionPanel";
+import { CHART, Card, EmptyState, tooltipStyle } from "./ui";
 
 export function ClustersPanel({
   data,

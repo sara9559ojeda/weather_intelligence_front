@@ -10,8 +10,7 @@ import {
 } from "recharts";
 import type { Observation } from "../api/types";
 import { num, timeLabel } from "../lib/format";
-import { CHART, Card, ErrorState, Skeleton } from "./ui";
-import { tooltipStyle } from "./PredictionPanel";
+import { CHART, Card, ErrorState, Skeleton, tooltipStyle } from "./ui";
 
 const RANGES = [
   { label: "48 h", hours: 48 },

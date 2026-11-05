@@ -11,8 +11,7 @@ import {
 } from "recharts";
 import type { Observation } from "../api/types";
 import { num } from "../lib/format";
-import { CHART, Card, Skeleton } from "./ui";
-import { tooltipStyle } from "./PredictionPanel";
+import { CHART, Card, Skeleton, tooltipStyle } from "./ui";
 
 export function ScatterTempHumidity({
   data,

@@ -19,6 +19,17 @@ export const CHART = {
   danger: "var(--color-danger)",
 };
 
+/* Estilo común del tooltip de Recharts: cristal coherente con el resto de la UI. */
+export const tooltipStyle = {
+  background: "color-mix(in srgb, var(--color-surface) 72%, transparent)",
+  backdropFilter: "blur(14px)",
+  border: "1px solid var(--glass-border)",
+  borderRadius: 12,
+  fontSize: 12,
+  color: "var(--color-text)",
+  boxShadow: "0 12px 32px -16px rgba(0,0,0,0.35)",
+};
+
 /**
  * Panel de cristal — el único contenedor "con caja" que queda en la app,
  * reservado para lo que de verdad necesita agruparse (gráficos, tablas).

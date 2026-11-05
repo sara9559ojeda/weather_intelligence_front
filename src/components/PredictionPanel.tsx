@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import type { HorizonPrediction, ModelRun } from "../api/types";
 import { num } from "../lib/format";
-import { CHART, EmptyState } from "./ui";
+import { CHART, EmptyState, tooltipStyle } from "./ui";
 
 export function PredictionPanel({
   predictions,
@@ -212,13 +212,3 @@ export function PredictionPanel({
     </motion.section>
   );
 }
-
-export const tooltipStyle = {
-  background: "color-mix(in srgb, var(--color-surface) 72%, transparent)",
-  backdropFilter: "blur(14px)",
-  border: "1px solid var(--glass-border)",
-  borderRadius: 12,
-  fontSize: 12,
-  color: "var(--color-text)",
-  boxShadow: "0 12px 32px -16px rgba(0,0,0,0.35)",
-};

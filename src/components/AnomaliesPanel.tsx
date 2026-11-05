@@ -10,8 +10,7 @@ import {
 } from "recharts";
 import type { AnomalyRow } from "../api/types";
 import { num, timeLabel } from "../lib/format";
-import { CHART, Card, Skeleton } from "./ui";
-import { tooltipStyle } from "./PredictionPanel";
+import { CHART, Card, Skeleton, tooltipStyle } from "./ui";
 
 export function AnomaliesPanel({
   data,
