@@ -293,6 +293,10 @@ export const WeatherBackground = memo(function WeatherBackground({
     }
     seed();
 
+    // Con cielo despejado el canvas no dibuja nada (estrellas/motas van por
+    // tsParticles): no tiene sentido limpiar un lienzo vacío 60 veces/s.
+    const animated = !reduceMotion && category !== "clear";
+
     let raf = 0;
     let running = true;
     let last = performance.now();
@@ -367,6 +371,9 @@ export const WeatherBackground = memo(function WeatherBackground({
       ] as [Particle[], number, number][]) {
         ctx!.strokeStyle = isDay ? `rgba(224,236,250,${alpha})` : `rgba(150,175,215,${alpha})`;
         ctx!.lineWidth = width_;
+        // Todas las gotas de una capa comparten estilo: un único trazado y un
+        // único stroke() por capa en vez de uno por gota (~200 por fotograma).
+        ctx!.beginPath();
         for (const d of layer) {
           d.x += d.vx * dt;
           d.y += d.vy * dt;
@@ -375,11 +382,10 @@ export const WeatherBackground = memo(function WeatherBackground({
             d.x = rand(0, width);
           }
           if (d.x < -20) d.x = width + 20;
-          ctx!.beginPath();
           ctx!.moveTo(d.x, d.y);
           ctx!.lineTo(d.x + d.vx * 0.04, d.y + d.size);
-          ctx!.stroke();
         }
+        ctx!.stroke();
       }
 
       if (category === "storm") {
@@ -406,10 +412,10 @@ export const WeatherBackground = memo(function WeatherBackground({
       paint(last);
     }
 
-    if (reduceMotion) {
-      repaint();
-    } else {
+    if (animated) {
       raf = requestAnimationFrame(loop);
+    } else {
+      repaint();
     }
 
     // "resize" llega en ráfagas (decenas por segundo al arrastrar): se agrupa
@@ -442,7 +448,7 @@ export const WeatherBackground = memo(function WeatherBackground({
     window.addEventListener("resize", onResize);
 
     function onVisibility() {
-      if (reduceMotion) return;
+      if (!animated) return;
       cancelAnimationFrame(raf); // nunca dos bucles a la vez
       if (document.hidden) {
         running = false;
