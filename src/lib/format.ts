@@ -30,7 +30,8 @@ export const varLabel = (v: string) => VAR_LABELS[v] ?? v;
 export const varUnit = (v: string) => VAR_UNITS[v] ?? "";
 
 export function num(value: number | null | undefined, digits = 1): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return "—";
+  // NaN e ±Infinity también: toLocaleString los mostraría como "NaN" / "∞".
+  if (value === null || value === undefined || !Number.isFinite(value)) return "—";
   return value.toLocaleString("es-ES", {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,

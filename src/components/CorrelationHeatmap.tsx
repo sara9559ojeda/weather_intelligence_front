@@ -40,12 +40,12 @@ export function CorrelationHeatmap({
                   <th className="pr-2 text-right font-normal text-[var(--color-text-dim)]">
                     {varLabel(rowVar)}
                   </th>
-                  {data.matrix[i].map((v, j) => (
+                  {(data.matrix[i] ?? []).map((v, j) => (
                     <td
                       key={j}
                       className="mono rounded p-1"
                       style={{ background: cellColor(v), color: "var(--color-text)" }}
-                      title={`${varLabel(rowVar)} × ${varLabel(data.variables[j])}: ${num(v ?? 0, 2)}`}
+                      title={`${varLabel(rowVar)} × ${varLabel(data.variables[j] ?? "")}: ${v === null ? "—" : num(v, 2)}`}
                     >
                       {v === null ? "—" : num(v, 2)}
                     </td>

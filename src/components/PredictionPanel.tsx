@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import type { HorizonPrediction, ModelRun } from "../api/types";
 import { num } from "../lib/format";
+import { testMetric } from "../lib/metrics";
 import { CHART, EmptyState, tooltipStyle } from "./ui";
 
 export function PredictionPanel({
@@ -33,7 +34,7 @@ export function PredictionPanel({
   const champion = soonest
     ? modelPerformance.find((r) => r.horizon_hours === soonest.horizon_hours)
     : undefined;
-  const skill = champion ? (champion.metrics?.test as Record<string, number> | undefined)?.skill_vs_persistence : undefined;
+  const skill = champion ? testMetric(champion, "skill_vs_persistence") : undefined;
 
   if (predictions.length === 0) {
     return (
