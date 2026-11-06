@@ -149,3 +149,24 @@ export interface Insight {
   note?: string;
   error?: string;
 }
+
+// --- Autenticación (backend/app/schemas/auth.py) ---
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  full_name: string | null;
+  created_at: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  user: AuthUser;
+}
+
+export interface StreamTicket {
+  ticket: string;
+  expires_in: number;
+}
