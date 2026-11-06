@@ -3,7 +3,8 @@ import { useTheme } from "../hooks/useTheme";
 import { specular } from "../lib/specular";
 import { BENEFITS, FEATURES, MARQUEE, STATEMENT, STATS, STEPS } from "./content";
 import { GlassDiscs } from "./GlassDiscs";
-import { Icon } from "./icons";
+import { Backdrop } from "./Backdrop";
+import { Asterisk, Icon } from "./icons";
 import { useLandingAnimations } from "./useLandingAnimations";
 import "./landing.css";
 
@@ -22,16 +23,6 @@ const NAV_LINKS = [
 function scrollToSection(id: string) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.getElementById(id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-}
-
-function Asterisk({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden className={`animate-[spin_48s_linear_infinite] ${className}`}>
-      <g stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-        <path d="M16 3v26M3 16h26M6.8 6.8l18.4 18.4M25.2 6.8L6.8 25.2" />
-      </g>
-    </svg>
-  );
 }
 
 /** Formulario de correo + botón, como el de la referencia: lleva al registro con el email ya escrito. */
@@ -69,10 +60,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
 
   return (
     <div ref={rootRef} className="lp-root relative min-h-dvh overflow-x-clip">
-      <div className="lp-mesh" aria-hidden />
-      <div data-blob className="lp-blob left-[8%] top-[18%] h-72 w-72 bg-[#7fcfd0]" aria-hidden />
-      <div data-blob className="lp-blob right-[6%] top-[55%] h-80 w-80 bg-[#f6a37f]" aria-hidden />
-      <div data-blob className="lp-blob left-[40%] top-[78%] h-64 w-64 bg-[#b9b2ee]" aria-hidden />
+      <Backdrop />
 
       {/* ------------------------------ Barra superior ------------------------------ */}
       <header className="sticky top-0 z-40 px-4 pt-4 sm:px-8">

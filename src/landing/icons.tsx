@@ -25,3 +25,14 @@ export function Icon({ name, className = "" }: { name: FeatureIcon; className?: 
     </svg>
   );
 }
+
+/** Asterisco de ocho puntas: el motivo de la marca; gira muy despacio. */
+export function Asterisk({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden className={`animate-[spin_48s_linear_infinite] ${className}`}>
+      <g stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+        <path d="M16 3v26M3 16h26M6.8 6.8l18.4 18.4M25.2 6.8L6.8 25.2" />
+      </g>
+    </svg>
+  );
+}
