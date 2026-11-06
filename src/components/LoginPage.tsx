@@ -70,12 +70,21 @@ const HIGHLIGHTS = [
   },
 ] as const;
 
-export function LoginPage() {
+interface LoginPageProps {
+  /** Pestaña con la que se abre (la landing la elige según el botón pulsado). */
+  initialMode?: Mode;
+  /** Email escrito en la portada, para no volver a pedirlo. */
+  initialEmail?: string;
+  /** Vuelve a la portada; si no se pasa, no se muestra el enlace. */
+  onBack?: () => void;
+}
+
+export function LoginPage({ initialMode = "login", initialEmail = "", onBack }: LoginPageProps = {}) {
   const { login, register } = useAuth();
   const { theme, toggle: toggleTheme } = useTheme();
-  const [mode, setMode] = useState<Mode>("login");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -113,10 +122,21 @@ export function LoginPage() {
       <WeatherBackground category="clear" isDay={isDay} />
 
       <header className="relative z-10 mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-5 sm:px-8">
-        <div className="flex items-center gap-2.5 text-[var(--color-text)]">
-          <Asterisk className="h-6 w-6 text-[var(--color-accent-2)]" />
-          <span className="text-sm font-semibold tracking-tight">Weather Intelligence</span>
-        </div>
+        {onBack ? (
+          <button
+            onClick={onBack}
+            aria-label="Volver al inicio"
+            className="flex items-center gap-2.5 text-[var(--color-text)]"
+          >
+            <Asterisk className="h-6 w-6 text-[var(--color-accent-2)]" />
+            <span className="text-sm font-semibold tracking-tight">Weather Intelligence</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2.5 text-[var(--color-text)]">
+            <Asterisk className="h-6 w-6 text-[var(--color-accent-2)]" />
+            <span className="text-sm font-semibold tracking-tight">Weather Intelligence</span>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <span className="glass-soft hidden items-center gap-2 rounded-full px-3.5 py-1.5 text-xs text-[var(--color-text-dim)] sm:inline-flex">
             <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-ok)]" />
@@ -224,7 +244,7 @@ export function LoginPage() {
                   id="auth-email"
                   type="email"
                   required
-                  autoFocus
+                  autoFocus={!initialEmail}
                   autoComplete="email"
                   maxLength={254}
                   value={email}
@@ -241,6 +261,7 @@ export function LoginPage() {
                     id="auth-password"
                     type={showPassword ? "text" : "password"}
                     required
+                    autoFocus={!!initialEmail}
                     minLength={isRegister ? 8 : undefined}
                     maxLength={128}
                     autoComplete={isRegister ? "new-password" : "current-password"}
@@ -278,6 +299,16 @@ export function LoginPage() {
                 {busy ? (isRegister ? "Creando cuenta…" : "Entrando…") : isRegister ? "Crear cuenta" : "Entrar"}
               </button>
             </form>
+
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="mt-5 w-full text-center text-xs text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
+              >
+                ← Volver al inicio
+              </button>
+            )}
           </motion.div>
         </div>
       </main>

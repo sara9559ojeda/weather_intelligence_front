@@ -54,6 +54,7 @@ export default defineConfig({
           if (!pkg) return undefined;
           if (REACT_PKGS.has(pkg)) return "react";
           if (pkg.startsWith("d3-") || RECHARTS_PKGS.has(pkg)) return "recharts";
+          if (pkg === "gsap") return "gsap";
           return undefined;
         },
       },
