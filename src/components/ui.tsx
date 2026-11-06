@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from "react";
 import { motion } from "motion/react";
+import { specular } from "../lib/specular";
 
 /* Colores para gráficos (leídos de los tokens CSS en index.css). */
 export const CHART = {
@@ -57,6 +58,7 @@ export function Card({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`glass rounded-[var(--radius-card)] ${className}`}
+      {...specular}
     >
       {(title || right) && (
         <header className="flex items-start justify-between gap-3 px-6 pt-5 pb-3">
