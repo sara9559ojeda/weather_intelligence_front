@@ -11,7 +11,7 @@ Backend (API FastAPI, modelos de ML, base de datos y documentación académica):
 
 - React 18 + TypeScript + Vite 6
 - Tailwind CSS 4
-- TanStack Query (datos) + Server-Sent Events (actualizaciones en vivo)
+- TanStack Query (datos) + WebSocket (actualizaciones en vivo, con reconexión automática)
 - Recharts (gráficos), `motion` (animaciones de interfaz), tsParticles (partículas del fondo)
 - Nginx en producción (sirve la SPA y hace de proxy a la API)
 
@@ -56,14 +56,24 @@ Para levantar todo el sistema junto (base de datos + API + dashboard), clona est
 repo dentro de la carpeta `frontend/` del repo del backend y usa su
 `docker-compose.yml`.
 
+## Acceso (login)
+
+El dashboard abre en una pantalla de inicio de sesión / registro; el backend
+exige sesión para toda la API de datos (JWT en `Authorization: Bearer`, guardado
+en `localStorage`). Al caducar la sesión o recibir un 401 se vuelve al login y se
+vacía la caché de datos. El WebSocket (`/api/ws`) se autentica con un ticket de
+60 s que se pide en cada (re)conexión: el navegador no admite cabeceras ahí.
+
 ## Estructura
 
 ```
 src/
-  api/          tipos de la API, cliente HTTP y hooks de TanStack Query
-  hooks/        useSSE (tiempo real) y useTheme (claro/oscuro)
+  api/          tipos de la API, cliente HTTP (con sesión) y hooks de TanStack Query
+  auth/         sesión: AuthProvider (login, registro, logout) y token
+  hooks/        useRealtime (WebSocket) y useTheme (claro/oscuro)
   lib/          formato de números/fechas e interpretación de weather_code
   components/   fondo meteorológico, héroe, pronóstico y paneles de análisis
+  main.tsx      puerta de sesión: login o dashboard (carga diferida)
   App.tsx       composición del dashboard
 ```
 
