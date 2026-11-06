@@ -13,7 +13,7 @@ export const useDashboard = () =>
   useQuery({
     queryKey: ["dashboard"],
     queryFn: () => apiGet<DashboardData>("/dashboard"),
-    refetchInterval: 5 * 60_000, // red de seguridad; el SSE es el disparador principal
+    refetchInterval: 5 * 60_000, // red de seguridad; el WebSocket es el disparador principal
   });
 
 export const useHistory = (hours = 168) =>

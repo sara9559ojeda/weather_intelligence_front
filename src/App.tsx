@@ -10,7 +10,8 @@ import {
   usePredictionHistory,
 } from "./api/hooks";
 import type { Insight } from "./api/types";
-import { useSSE } from "./hooks/useSSE";
+import { useAuth } from "./auth/AuthContext";
+import { useRealtime, type RealtimeStatus } from "./hooks/useRealtime";
 import { useTheme } from "./hooks/useTheme";
 import { relativeAge } from "./lib/format";
 import { weatherVisual } from "./lib/weatherCode";
@@ -48,7 +49,7 @@ function ChartSlot({ skeleton, children }: { skeleton: string; children: ReactNo
   );
 }
 
-type ConnStatus = ReturnType<typeof useSSE>["status"];
+type ConnStatus = RealtimeStatus;
 
 /**
  * Indicador de conexión en vivo. Lleva su propio reloj para que
@@ -92,7 +93,8 @@ function ConnectionStatus({ status, lastEventAt }: { status: ConnStatus; lastEve
 
 export function App() {
   const queryClient = useQueryClient();
-  const { status: sseStatus, lastEventAt } = useSSE();
+  const { status: liveStatus, lastEventAt } = useRealtime();
+  const { user, logout } = useAuth();
   const { theme, toggle: toggleTheme } = useTheme();
 
   const [historyHours, setHistoryHours] = useState(168);
@@ -135,7 +137,7 @@ export function App() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <ConnectionStatus status={sseStatus} lastEventAt={lastEventAt} />
+            <ConnectionStatus status={liveStatus} lastEventAt={lastEventAt} />
             <button
               onClick={toggleTheme}
               aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
@@ -143,6 +145,23 @@ export function App() {
             >
               {theme === "dark" ? "☀" : "🌙"}
             </button>
+            {user && (
+              <div className="flex items-center gap-2 border-l border-[var(--glass-border)] pl-3">
+                <span
+                  className="hidden max-w-[11rem] truncate text-xs text-[var(--color-text-dim)] md:inline"
+                  title={user.email}
+                >
+                  {user.full_name || user.email}
+                </span>
+                <button
+                  onClick={logout}
+                  aria-label={`Cerrar sesión (${user.email})`}
+                  className="glass-soft rounded-full px-3 py-1.5 text-xs font-medium text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
+                >
+                  Salir
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
