@@ -12,7 +12,7 @@ import {
 import type { Insight } from "./api/types";
 import { useAuth } from "./auth/AuthContext";
 import { useRealtime, type RealtimeStatus } from "./hooks/useRealtime";
-import { useTheme } from "./hooks/useTheme";
+import { useWeatherTheme } from "./hooks/useWeatherTheme";
 import { relativeAge } from "./lib/format";
 import { weatherVisual } from "./lib/weatherCode";
 import { AiInsights } from "./components/AiInsights";
@@ -95,7 +95,6 @@ export function App() {
   const queryClient = useQueryClient();
   const { status: liveStatus, lastEventAt } = useRealtime();
   const { user, logout } = useAuth();
-  const { theme, toggle: toggleTheme } = useTheme();
 
   const [historyHours, setHistoryHours] = useState(168);
   const [pvaHorizon, setPvaHorizon] = useState(6);
@@ -120,7 +119,8 @@ export function App() {
 
   const currentObs = dashboard.data?.current.observation;
   const visual = weatherVisual(currentObs?.weather_code);
-  const isDay = currentObs?.is_day ?? true;
+  // El tema (claro/oscuro) sigue al día/noche reales de la observación.
+  const { isDay } = useWeatherTheme(currentObs?.is_day);
 
   return (
     <div className="min-h-screen">
@@ -138,13 +138,6 @@ export function App() {
           </div>
           <div className="flex items-center gap-3">
             <ConnectionStatus status={liveStatus} lastEventAt={lastEventAt} />
-            <button
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              className="glass-soft flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
-            >
-              {theme === "dark" ? "☀" : "🌙"}
-            </button>
             {user && (
               <div className="flex items-center gap-2 border-l border-[var(--glass-border)] pl-3">
                 <span

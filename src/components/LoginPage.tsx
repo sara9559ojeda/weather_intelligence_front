@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
-import { useTheme } from "../hooks/useTheme";
+import { useWeatherTheme } from "../hooks/useWeatherTheme";
 import { Backdrop } from "../landing/Backdrop";
 import { GlassDiscs } from "../landing/GlassDiscs";
 import { Asterisk } from "../landing/icons";
@@ -60,7 +60,7 @@ interface LoginPageProps {
 
 export function LoginPage({ initialMode = "login", initialEmail = "", onBack }: LoginPageProps = {}) {
   const { login, register } = useAuth();
-  const { theme, toggle: toggleTheme } = useTheme();
+  useWeatherTheme();
   const rootRef = useRef<HTMLDivElement>(null);
   useAuthAnimations(rootRef);
 
@@ -131,13 +131,6 @@ export function LoginPage({ initialMode = "login", initialEmail = "", onBack }: 
               <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-ok)]" />
               Madrid-Barajas · 40,49° N
             </span>
-            <button
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              className="glass-soft flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
-            >
-              {theme === "dark" ? "☀" : "🌙"}
-            </button>
             {onBack && (
               <button onClick={onBack} className="lp-btn-ghost whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium">
                 <span className="sm:hidden">Inicio</span>

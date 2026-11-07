@@ -1,5 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
-import { useTheme } from "../hooks/useTheme";
+import { useWeatherTheme } from "../hooks/useWeatherTheme";
 import { specular } from "../lib/specular";
 import { BENEFITS, FEATURES, MARQUEE, STATEMENT, STATS, STEPS } from "./content";
 import { GlassDiscs } from "./GlassDiscs";
@@ -55,7 +55,7 @@ function EmailSignup({ onRegister, id }: { onRegister: (email?: string) => void;
 
 export function Landing({ onLogin, onRegister }: LandingProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const { theme, toggle: toggleTheme } = useTheme();
+  useWeatherTheme();
   useLandingAnimations(rootRef);
 
   return (
@@ -95,13 +95,6 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
           </ul>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              className="glass-soft flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
-            >
-              {theme === "dark" ? "☀" : "🌙"}
-            </button>
             <button onClick={onLogin} className="lp-btn-ghost rounded-full px-4 py-2 text-sm font-medium">
               Iniciar sesión
             </button>
