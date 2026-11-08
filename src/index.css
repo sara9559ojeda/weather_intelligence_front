@@ -264,3 +264,9 @@ body {
   overflow: visible;
 }
 
+
+/* Las listas desplegables nativas no heredan el fondo translúcido del control. */
+select option {
+  background: var(--color-surface);
+  color: var(--color-text);
+}

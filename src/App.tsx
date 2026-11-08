@@ -11,11 +11,13 @@ import {
 } from "./api/hooks";
 import type { Insight } from "./api/types";
 import { useAuth } from "./auth/AuthContext";
+import { useLocation } from "./location/LocationContext";
 import { useRealtime, type RealtimeStatus } from "./hooks/useRealtime";
 import { useWeatherTheme } from "./hooks/useWeatherTheme";
 import { relativeAge } from "./lib/format";
 import { weatherVisual } from "./lib/weatherCode";
 import { AiInsights } from "./components/AiInsights";
+import { CitySelect } from "./components/CitySelect";
 import { CorrelationHeatmap } from "./components/CorrelationHeatmap";
 import { CurrentConditions } from "./components/CurrentConditions";
 import { HistoricalComparison } from "./components/HistoricalComparison";
@@ -95,6 +97,7 @@ export function App() {
   const queryClient = useQueryClient();
   const { status: liveStatus, lastEventAt } = useRealtime();
   const { user, logout } = useAuth();
+  const { current: city } = useLocation();
 
   const [historyHours, setHistoryHours] = useState(168);
   const [pvaHorizon, setPvaHorizon] = useState(6);
@@ -109,7 +112,7 @@ export function App() {
   const refreshInsight = async () => {
     try {
       const fresh = await apiGet<Insight>("/insights", { force: true });
-      queryClient.setQueryData(["insight"], fresh);
+      queryClient.setQueryData(["insight", city?.slug ?? null], fresh);
     } catch (err) {
       // Se conserva la interpretación anterior. Sin el catch, un fallo de red
       // quedaba como promesa rechazada sin capturar (el botón no la espera).
@@ -133,10 +136,11 @@ export function App() {
               Weather Intelligence
             </h1>
             <p className="hidden text-[11px] text-[var(--color-text-dim)] sm:block">
-              Minería de datos · Machine Learning · IA — Madrid-Barajas
+              Minería de datos · Machine Learning · IA{city ? ` — ${city.name}` : ""}
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <CitySelect />
             <ConnectionStatus status={liveStatus} lastEventAt={lastEventAt} />
             {user && (
               <div className="flex items-center gap-2 border-l border-[var(--glass-border)] pl-3">
