@@ -22,7 +22,7 @@ export const CHART = {
 
 /* Estilo común del tooltip de Recharts: cristal coherente con el resto de la UI. */
 export const tooltipStyle = {
-  background: "color-mix(in srgb, var(--color-surface) 72%, transparent)",
+  background: "color-mix(in srgb, var(--color-surface) 90%, transparent)",
   backdropFilter: "blur(14px)",
   border: "1px solid var(--glass-border)",
   borderRadius: 12,
@@ -154,7 +154,7 @@ export function Badge({
   };
   return (
     <span
-      className={`glass-soft inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${tones[tone]}`}
+      className={`badge-solid inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${tones[tone]}`}
     >
       {children}
     </span>

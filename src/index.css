@@ -11,17 +11,18 @@
   --color-surface-2: #f3f6fb;
   --color-border: #d7e0ec;
   --color-text: #10192b;
-  --color-text-dim: #4c5a70;
-  --color-text-faint: #8695ab;
+  --color-text-dim: #3a4960;
+  --color-text-faint: #4a5870;
 
   --color-accent: #0a7cff;
   --color-accent-dim: #0864cf;
   /* Segundo acento (periwinkle): palabras destacadas de los titulares */
-  --color-accent-2: #5560f0;
+  --color-accent-2: #4650d6;
 
-  --color-ok: #1f9d55;
-  --color-warn: #b9770e;
-  --color-danger: #d33a3a;
+  /* Estados: lo bastante oscuros para leerse como texto sobre el cielo diurno (≥ 4,5:1). */
+  --color-ok: #127a3a;
+  --color-warn: #8f5600;
+  --color-danger: #b42222;
 
   --color-chart-1: #0a7cff;
   --color-chart-2: #f2994a;
@@ -56,8 +57,8 @@
     --color-surface-2: #121a2c;
     --color-border: #26324a;
     --color-text: #eef3fb;
-    --color-text-dim: #a3b0c7;
-    --color-text-faint: #66748c;
+    --color-text-dim: #bcc7da;
+    --color-text-faint: #94a3bc;
 
     --color-accent: #4fa3ff;
     --color-accent-dim: #2f86ef;
@@ -89,8 +90,8 @@
   --color-surface-2: #121a2c;
   --color-border: #26324a;
   --color-text: #eef3fb;
-  --color-text-dim: #a3b0c7;
-  --color-text-faint: #66748c;
+  --color-text-dim: #bcc7da;
+  --color-text-faint: #94a3bc;
 
   --color-accent: #4fa3ff;
   --color-accent-dim: #2f86ef;
@@ -197,6 +198,14 @@ body {
     mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
   }
 
+  /* Etiquetas de estado: fondo casi opaco para que el color del texto se lea sobre cualquier cielo. */
+  .badge-solid {
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
+    box-shadow: 0 1px 6px rgb(10 30 60 / 0.12);
+  }
+
   .glass-soft {
     background: var(--glass-fill-soft);
     backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(170%);
@@ -204,6 +213,12 @@ body {
     border: 1px solid var(--glass-border);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), inset 0 -1px 0 rgb(255 255 255 / 0.08);
   }
+}
+
+/* Tooltips de Recharts: cada línea toma el color de su serie (a veces casi negro en tema oscuro);
+   se fuerza el color de texto del tema para que siempre se lean. */
+.recharts-tooltip-item {
+  color: var(--color-text) !important;
 }
 
 /* Deriva atmosférica lentísima del cielo: nunca estático del todo. */
