@@ -19,6 +19,16 @@ export interface Observation {
   is_day: boolean | null;
 }
 
+export interface LocationInfo {
+  slug: string;
+  name: string;
+  country: string | null;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  is_default: boolean;
+}
+
 export interface CurrentWeather {
   location: string;
   latitude: number;

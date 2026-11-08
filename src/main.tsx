@@ -7,6 +7,7 @@ import { ApiError } from "./api/client";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { useAuthView } from "./hooks/useAuthView";
 import { SessionGate } from "./components/SessionGate";
+import { LocationProvider } from "./location/LocationContext";
 
 // El dashboard (y con él los gráficos) solo se descarga una vez iniciada la sesión.
 const App = lazy(() => import("./App").then((m) => ({ default: m.App })));
@@ -66,7 +67,9 @@ function Root() {
   if (status === "authenticated") {
     return (
       <Suspense fallback={<SessionGate state="checking" />}>
-        <App />
+        <LocationProvider>
+          <App />
+        </LocationProvider>
       </Suspense>
     );
   }

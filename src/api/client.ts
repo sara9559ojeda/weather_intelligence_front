@@ -21,6 +21,16 @@ export class ApiError extends Error {
 
 let onUnauthorized: (() => void) | null = null;
 
+// Ciudad activa: las lecturas de datos (GET) la llevan como `?location=<slug>`.
+// Sin ciudad elegida, el servidor usa la predeterminada. Las rutas que no son
+// "por ciudad" (login, catálogo de ciudades) no la reciben.
+let activeLocation: string | null = null;
+const LOCATION_FREE_PATHS = ["/auth", "/locations"];
+
+export function setActiveLocation(slug: string | null): void {
+  activeLocation = slug;
+}
+
 /** Registra qué hacer cuando la sesión deja de ser válida (caducada, usuario desactivado…). */
 export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
@@ -35,6 +45,9 @@ async function request<T>(
   const url = new URL(BASE + path, window.location.origin);
   if (params) {
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+  }
+  if (method === "GET" && activeLocation && !LOCATION_FREE_PATHS.some((p) => path.startsWith(p))) {
+    url.searchParams.set("location", activeLocation);
   }
 
   const headers: Record<string, string> = { Accept: "application/json" };

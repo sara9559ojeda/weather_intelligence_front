@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { API_BASE, apiPost } from "../api/client";
+import { useLocation } from "../location/LocationContext";
 import type { StreamTicket } from "../api/types";
 
 export type RealtimeStatus = "connecting" | "live" | "offline";
@@ -31,6 +32,10 @@ function websocketUrl(ticket: string): string {
  */
 export function useRealtime(): { status: RealtimeStatus; lastEventAt: Date | null } {
   const queryClient = useQueryClient();
+  const slug = useLocation().current?.slug ?? null;
+  // El efecto de conexión no se reinicia al cambiar de ciudad: lee la activa por ref.
+  const slugRef = useRef(slug);
+  slugRef.current = slug;
   const [status, setStatus] = useState<RealtimeStatus>("connecting");
   const [lastEventAt, setLastEventAt] = useState<Date | null>(null);
 
@@ -55,12 +60,15 @@ export function useRealtime(): { status: RealtimeStatus; lastEventAt: Date | nul
     };
 
     const onMessage = (event: MessageEvent<string>) => {
-      let message: { type?: string };
+      let message: { type?: string; data?: { location?: string } };
       try {
         message = JSON.parse(event.data);
       } catch {
         return;
       }
+      // Con varias ciudades el servidor emite eventos de todas: solo importa la que se ve.
+      const eventCity = message.data?.location;
+      const isOtherCity = eventCity != null && slugRef.current != null && eventCity !== slugRef.current;
       switch (message.type) {
         case "connected":
           failures = 0;
@@ -71,10 +79,12 @@ export function useRealtime(): { status: RealtimeStatus; lastEventAt: Date | nul
           hasConnectedBefore = true;
           break;
         case "observation":
+          if (isOtherCity) break;
           setLastEventAt(new Date());
           invalidateLive();
           break;
         case "model_updated":
+          if (isOtherCity) break;
           queryClient.invalidateQueries({ queryKey: ["dashboard"] });
           queryClient.invalidateQueries({ queryKey: ["predictionHistory"] });
           queryClient.invalidateQueries({ queryKey: ["insight"] });
