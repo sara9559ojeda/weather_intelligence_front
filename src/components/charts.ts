@@ -7,3 +7,6 @@ export { HistoryCharts } from "./HistoryCharts";
 export { PredictedVsActual } from "./PredictedVsActual";
 export { PredictionPanel } from "./PredictionPanel";
 export { ScatterTempHumidity } from "./ScatterTempHumidity";
+export { EvaluationPanel } from "./intelligence/EvaluationPanel";
+export { RegimesPanel } from "./intelligence/RegimesPanel";
+export { ReliabilityPanel } from "./intelligence/ReliabilityPanel";
