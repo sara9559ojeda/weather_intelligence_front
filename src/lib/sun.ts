@@ -1,11 +1,25 @@
-// Madrid-Barajas (backend/ml/config/location.toml).
-const LAT = 40.4936;
-const LON = -3.5668;
+import { readStoredLocation } from "../location/storage";
 
 const RAD = Math.PI / 180;
 
+export interface Coords {
+  latitude: number;
+  longitude: number;
+}
+
+/**
+ * Lugar de referencia cuando aún no hay datos de ninguna ciudad (portada y login):
+ * la última ciudad elegida en la app o, si no hay, una estimación a partir de la
+ * zona horaria del dispositivo (15° de longitud por hora de diferencia con UTC).
+ */
+export function referenceCoords(): Coords {
+  const stored = readStoredLocation();
+  if (stored) return { latitude: stored.latitude, longitude: stored.longitude };
+  return { latitude: 20, longitude: (-new Date().getTimezoneOffset() / 60) * 15 };
+}
+
 /** Elevación del sol sobre el horizonte, en grados (algoritmo astronómico de baja precisión, ±0,01°). */
-export function solarElevation(date: Date, lat = LAT, lon = LON): number {
+export function solarElevation(date: Date, lat: number, lon: number): number {
   const n = date.getTime() / 86_400_000 + 2_440_587.5 - 2_451_545.0; // días desde J2000
   const meanLon = (280.46 + 0.9856474 * n) % 360;
   const anomaly = (357.528 + 0.9856003 * n) * RAD;
@@ -24,7 +38,7 @@ export function solarElevation(date: Date, lat = LAT, lon = LON): number {
   return Math.asin(sinElevation) / RAD;
 }
 
-/** ¿Es de día en Madrid-Barajas? (sol por encima de -0,833°: el borde superior del disco con refracción). */
-export function isDaylight(date: Date = new Date()): boolean {
-  return solarElevation(date) > -0.833;
+/** ¿Es de día en ese lugar? (sol por encima de -0,833°: el borde superior del disco con refracción). */
+export function isDaylight(date: Date = new Date(), where: Coords = referenceCoords()): boolean {
+  return solarElevation(date, where.latitude, where.longitude) > -0.833;
 }

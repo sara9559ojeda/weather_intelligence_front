@@ -12,7 +12,7 @@ const DARK_SKY_BY_DAY: ReadonlySet<WeatherCategory> = new Set(["rain", "storm"])
  * (de día, salvo lluvia o tormenta) y oscuro de noche o con cielo cerrado.
  * Con datos reales se pasan `isDay` y la categoría de la última observación;
  * sin ellos (portada y login, antes de tener sesión) se calcula con la posición
- * del sol sobre Madrid-Barajas y se revisa cada minuto.
+ * del sol sobre la última ciudad elegida y se revisa cada minuto.
  */
 export function useWeatherTheme(
   isDay?: boolean | null,
