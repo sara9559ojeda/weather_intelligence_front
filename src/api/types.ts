@@ -462,6 +462,8 @@ export interface AnalystAnswer {
   limitations: string[];
   availability: Record<string, boolean>;
   fallback_reason: string | null;
+  /** Aviso cuando la respuesta determinista no corresponde a la pregunta literal. */
+  notice?: string | null;
   model: string | null;
   generated_at: string;
   context_as_of: string | null;

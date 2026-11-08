@@ -108,6 +108,9 @@ function AnswerCard({ entry }: { entry: Entry }) {
       {entry.status === "done" && (
         <div className="glass-soft max-w-[96%] rounded-2xl rounded-bl-md px-4 py-3">
           <div className="space-y-2.5">
+            {entry.answer.notice && (
+              <p className="text-xs italic text-[var(--color-text-dim)]">{entry.answer.notice}</p>
+            )}
             {entry.answer.sections.length > 0
               ? entry.answer.sections.map((s, i) => (
                   <p key={i} className="text-sm leading-relaxed text-[var(--color-text)]">
