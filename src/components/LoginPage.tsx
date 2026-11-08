@@ -129,7 +129,7 @@ export function LoginPage({ initialMode = "login", initialEmail = "", onBack }: 
           <div className="flex items-center gap-2">
             <span className="glass-soft mr-1 hidden items-center gap-2 rounded-full px-3.5 py-2 text-xs text-[var(--color-text-dim)] md:inline-flex">
               <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-ok)]" />
-              Madrid-Barajas · 40,49° N
+              Colombia y España · 6 ciudades
             </span>
             {onBack && (
               <button onClick={onBack} className="lp-btn-ghost whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium">

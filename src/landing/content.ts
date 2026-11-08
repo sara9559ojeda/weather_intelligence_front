@@ -1,10 +1,12 @@
 // Textos de la landing. Todas las cifras salen de las ejecuciones reales del
-// proyecto (docs/fase-4-anomalias.md, fase-5-modelado.md, fase-9-retraining.md).
+// proyecto (docs/fase-4-anomalias.md, fase-5-modelado.md, fase-9-retraining.md) y de la
+// base de datos a 8 nov 2026: 234.851 observaciones de Madrid-Barajas (desde 2000) más
+// 147.765 de cada una de las cinco ciudades colombianas (desde 2010) = 973.676.
 
 export const STATS = [
-  { value: 26, decimals: 0, unit: "años", label: "de observaciones horarias de Madrid-Barajas (2000–2026)" },
-  { value: 233880, decimals: 0, unit: "", label: "observaciones analizadas para entrenar y comparar" },
-  { value: 0.73, decimals: 2, unit: "°C", label: "de error medio al predecir la próxima hora" },
+  { value: 6, decimals: 0, unit: "ciudades", label: "Madrid-Barajas y cinco ciudades colombianas, cada una con sus propios modelos" },
+  { value: 973676, decimals: 0, unit: "", label: "observaciones horarias analizadas (a 8 nov 2026)" },
+  { value: 0.72, decimals: 2, unit: "°C", label: "de error (RMSE) al predecir la próxima hora en Madrid, sobre datos de prueba" },
   { value: 5, decimals: 0, unit: "", label: "horizontes de predicción: 1, 3, 6, 12 y 24 h" },
 ] as const;
 
@@ -24,12 +26,12 @@ export const FEATURES: { icon: FeatureIcon; title: string; text: string }[] = [
   {
     icon: "history",
     title: "Comparación histórica",
-    text: "¿Es normal para este mes y esta hora? Percentiles calculados contra 26 años de datos del mismo momento.",
+    text: "¿Es normal para este mes y esta hora? Percentiles calculados contra el histórico de la ciudad en el mismo mes y franja horaria.",
   },
   {
     icon: "layers",
     title: "Regímenes del tiempo",
-    text: "Un algoritmo de clustering agrupa la historia en tres regímenes atmosféricos y te dice en cuál estás.",
+    text: "Un algoritmo de clustering agrupa la historia de cada ciudad en regímenes atmosféricos (dos o tres, según sus datos) y te dice en cuál estás.",
   },
   {
     icon: "alert",
@@ -46,7 +48,7 @@ export const FEATURES: { icon: FeatureIcon; title: string; text: string }[] = [
 export const STEPS = [
   {
     title: "Recogemos",
-    text: "Cada 30 minutos consultamos Open-Meteo para Madrid-Barajas y guardamos la observación, rellenando los huecos si los hubiera.",
+    text: "Cada 30 minutos consultamos Open-Meteo para cada ciudad y guardamos la observación, rellenando los huecos si los hubiera.",
   },
   {
     title: "Comparamos",

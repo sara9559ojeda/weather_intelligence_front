@@ -123,7 +123,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
               data-hero-fade
               className="mono mb-5 text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-dim)]"
             >
-              Madrid-Barajas · datos, ML e IA
+              Colombia y España · datos, ML e IA
             </p>
             <h1
               data-hero-title
@@ -188,9 +188,9 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
               Un panel que explica el tiempo, <span className="text-[var(--color-accent-2)]">no solo lo muestra</span>.
             </h2>
             <p data-reveal className="max-w-xl text-base leading-relaxed text-[var(--color-text-dim)]">
-              Weather Intelligence es un panel meteorológico para Madrid-Barajas. Recoge datos reales cada 30
-              minutos, los compara con décadas de historia, predice la temperatura de las próximas horas y
-              redacta una lectura comprensible. Sirve para saber qué esperar, si lo de hoy es normal y qué
+              Weather Intelligence es un panel meteorológico para Bogotá, Medellín, Cali, Barranquilla, Cartagena y
+              Madrid. Eliges tu ciudad, recoge sus datos reales cada 30 minutos, los compara con años de historia,
+              predice la temperatura de las próximas horas y redacta una lectura comprensible. Sirve para saber qué esperar, si lo de hoy es normal y qué
               confianza merece cada cifra.
             </p>
           </div>
@@ -357,7 +357,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
               id="cta-titulo"
               className="mx-auto max-w-2xl text-[clamp(2rem,4.6vw,3.4rem)] font-semibold leading-[1.08] tracking-[-0.03em]"
             >
-              Mira el cielo de Madrid con otros ojos.
+              Mira el cielo de tu ciudad con otros ojos.
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-base text-[var(--color-text-dim)]">
               Crea tu cuenta en un minuto y entra al panel completo: pronóstico, anomalías y lectura con IA.
