@@ -6,6 +6,11 @@ import type { StreamTicket } from "../api/types";
 
 export type RealtimeStatus = "connecting" | "live" | "offline";
 
+// Datos que cambian con cada observación nueva (el panel, la normalidad, el régimen y el pronóstico vigente).
+const LIVE_KEYS = ["dashboard", "history", "anomalies", "predictionHistory", "insight", "normality", "regimes", "reliability"];
+// Datos que cambian cuando se verifican pronósticos ya emitidos (evaluación y confiabilidad).
+const VERIFIED_KEYS = ["evaluation", "evaluationPairs", "reliability"];
+
 const BACKOFF_BASE_MS = 1_000;
 const BACKOFF_MAX_MS = 30_000;
 
@@ -48,7 +53,7 @@ export function useRealtime(): { status: RealtimeStatus; lastEventAt: Date | nul
     let hasConnectedBefore = false;
 
     const invalidateLive = () => {
-      for (const key of ["dashboard", "history", "anomalies", "predictionHistory", "insight"]) {
+      for (const key of [...LIVE_KEYS, ...VERIFIED_KEYS]) {
         queryClient.invalidateQueries({ queryKey: [key] });
       }
     };
@@ -88,6 +93,12 @@ export function useRealtime(): { status: RealtimeStatus; lastEventAt: Date | nul
           queryClient.invalidateQueries({ queryKey: ["dashboard"] });
           queryClient.invalidateQueries({ queryKey: ["predictionHistory"] });
           queryClient.invalidateQueries({ queryKey: ["insight"] });
+          // un modelo nuevo cambia pronósticos, intervalos y la comparación de modelos
+          for (const key of ["reliability", "evaluation"]) queryClient.invalidateQueries({ queryKey: [key] });
+          break;
+        case "forecasts_verified":
+          if (isOtherCity) break;
+          for (const key of VERIFIED_KEYS) queryClient.invalidateQueries({ queryKey: [key] });
           break;
         case "ping":
           setStatus("live");
