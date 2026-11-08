@@ -120,7 +120,7 @@ export function App() {
   const currentObs = dashboard.data?.current.observation;
   const visual = weatherVisual(currentObs?.weather_code);
   // El tema (claro/oscuro) sigue al día/noche reales de la observación.
-  const { isDay } = useWeatherTheme(currentObs?.is_day);
+  const { isDay } = useWeatherTheme(currentObs?.is_day, visual.category);
 
   return (
     <div className="min-h-screen">
@@ -132,7 +132,7 @@ export function App() {
             <h1 className="text-sm font-semibold tracking-tight text-[var(--color-text)] sm:text-base">
               Weather Intelligence
             </h1>
-            <p className="hidden text-[11px] text-[var(--color-text-faint)] sm:block">
+            <p className="hidden text-[11px] text-[var(--color-text-dim)] sm:block">
               Minería de datos · Machine Learning · IA — Madrid-Barajas
             </p>
           </div>
