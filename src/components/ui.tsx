@@ -61,8 +61,8 @@ export function Card({
       {...specular}
     >
       {(title || right) && (
-        <header className="flex items-start justify-between gap-3 px-6 pt-5 pb-3">
-          <div>
+        <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 px-6 pt-5 pb-3">
+          <div className="min-w-0">
             {title && (
               <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-dim)]">
                 {title}

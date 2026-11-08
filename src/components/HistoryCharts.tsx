@@ -52,7 +52,7 @@ export function HistoryCharts({
       title="Evolución temporal"
       subtitle="observaciones históricas y en tiempo real"
       right={
-        <div className="flex gap-1" role="group" aria-label="Rango temporal">
+        <div className="flex flex-wrap gap-1" role="group" aria-label="Rango temporal">
           {RANGES.map((r) => (
             <button
               key={r.hours}

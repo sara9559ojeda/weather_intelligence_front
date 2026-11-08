@@ -42,10 +42,10 @@ export function PredictedVsActual({
 
   return (
     <Card
-      title="Predicho vs real"
+      title="Predicho vs real (prueba histórica)"
       subtitle={`predicciones del campeón a +${horizon} h sobre el conjunto de test`}
       right={
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-1 text-[11px] text-[var(--color-text-dim)]">
             <input
               type="checkbox"
@@ -54,7 +54,7 @@ export function PredictedVsActual({
             />
             banda
           </label>
-          <div className="flex gap-1" role="group" aria-label="Horizonte de predicción">
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Horizonte de predicción">
             {HORIZONS.map((h) => (
               <button
                 key={h}
