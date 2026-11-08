@@ -21,7 +21,7 @@ export class ApiError extends Error {
 
 let onUnauthorized: (() => void) | null = null;
 
-// Ciudad activa: las lecturas de datos (GET) la llevan como `?location=<slug>`.
+// Ciudad activa: toda petición de datos (GET, y el POST del analista) la lleva como `?location=<slug>`.
 // Sin ciudad elegida, el servidor usa la predeterminada. Las rutas que no son
 // "por ciudad" (login, catálogo de ciudades) no la reciben.
 let activeLocation: string | null = null;
@@ -46,7 +46,7 @@ async function request<T>(
   if (params) {
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
   }
-  if (method === "GET" && activeLocation && !LOCATION_FREE_PATHS.some((p) => path.startsWith(p))) {
+  if (activeLocation && !LOCATION_FREE_PATHS.some((p) => path.startsWith(p))) {
     url.searchParams.set("location", activeLocation);
   }
 
