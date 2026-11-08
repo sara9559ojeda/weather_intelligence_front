@@ -32,11 +32,11 @@ const ParticlesLayer = lazy(() =>
 const SKY: Record<string, string> = {
   "clear-day": "linear-gradient(180deg, #4f9bef 0%, #8ec4fb 42%, #dcedff 100%)",
   "clear-night": "linear-gradient(180deg, #02040b 0%, #0a1130 55%, #172a4a 100%)",
-  "cloudy-day": "linear-gradient(180deg, #7e91ac 0%, #b3c1d6 55%, #dde4ee 100%)",
+  "cloudy-day": "linear-gradient(180deg, #aebcd0 0%, #c9d3e1 55%, #e4eaf2 100%)",
   "cloudy-night": "linear-gradient(180deg, #080a12 0%, #171f31 55%, #242d43 100%)",
   "fog-day": "linear-gradient(180deg, #c1cad6 0%, #dfe4ea 100%)",
   "fog-night": "linear-gradient(180deg, #0e111a 0%, #232936 100%)",
-  "rain-day": "linear-gradient(180deg, #3f5470 0%, #667a95 55%, #8b9bb0 100%)",
+  "rain-day": "linear-gradient(180deg, #27384f 0%, #3d506a 55%, #52647d 100%)",
   "rain-night": "linear-gradient(180deg, #03050b 0%, #0b1420 55%, #151e2c 100%)",
   "storm-day": "linear-gradient(180deg, #262b3a 0%, #3d4356 55%, #565b6e 100%)",
   "storm-night": "linear-gradient(180deg, #020207 0%, #0d0d17 55%, #171822 100%)",
@@ -49,17 +49,17 @@ const GLOW: Record<
   { pos: string; core: string; mid: string; blend: React.CSSProperties["mixBlendMode"] }
 > = {
   "clear-day": { pos: "72% 20%", core: "#fff3d2", mid: "#ffcf6b", blend: "screen" },
-  "clear-night": { pos: "26% 16%", core: "#eef3ff", mid: "#9fb4e8", blend: "screen" },
+  "clear-night": { pos: "88% 46%", core: "#eef3ff", mid: "#9fb4e8", blend: "screen" },
   "cloudy-day": { pos: "66% 14%", core: "#fdf6e6", mid: "#f3dca6", blend: "screen" },
-  "cloudy-night": { pos: "30% 14%", core: "#dbe3f5", mid: "#8f9fc4", blend: "screen" },
+  "cloudy-night": { pos: "88% 46%", core: "#dbe3f5", mid: "#8f9fc4", blend: "screen" },
   "fog-day": { pos: "60% 10%", core: "#fbfbfb", mid: "#e7ebef", blend: "normal" },
-  "fog-night": { pos: "40% 12%", core: "#c9d2e0", mid: "#8b95aa", blend: "screen" },
-  "rain-day": { pos: "62% 8%", core: "#dfe7f2", mid: "#a9b8cc", blend: "screen" },
-  "rain-night": { pos: "35% 10%", core: "#8fa2c4", mid: "#4d5c7c", blend: "screen" },
-  "storm-day": { pos: "50% 6%", core: "#c6cbdb", mid: "#7d84a0", blend: "screen" },
-  "storm-night": { pos: "50% 6%", core: "#9aa0c0", mid: "#4a4e6e", blend: "screen" },
+  "fog-night": { pos: "88% 46%", core: "#c9d2e0", mid: "#8b95aa", blend: "screen" },
+  "rain-day": { pos: "88% 46%", core: "#dfe7f2", mid: "#a9b8cc", blend: "screen" },
+  "rain-night": { pos: "88% 46%", core: "#8fa2c4", mid: "#4d5c7c", blend: "screen" },
+  "storm-day": { pos: "88% 46%", core: "#c6cbdb", mid: "#7d84a0", blend: "screen" },
+  "storm-night": { pos: "88% 46%", core: "#9aa0c0", mid: "#4a4e6e", blend: "screen" },
   "snow-day": { pos: "64% 12%", core: "#ffffff", mid: "#cfe3f5", blend: "screen" },
-  "snow-night": { pos: "32% 12%", core: "#dbe8fb", mid: "#7f96c0", blend: "screen" },
+  "snow-night": { pos: "88% 46%", core: "#dbe8fb", mid: "#7f96c0", blend: "screen" },
 };
 
 type Particle = { x: number; y: number; vx: number; vy: number; size: number; phase: number };
@@ -410,6 +410,8 @@ export const WeatherBackground = memo(function WeatherBackground({
   }, [category, isDay, reduceMotion]);
 
   const glow = GLOW[key] ?? GLOW["cloudy-day"];
+  // Cielos oscuros (noche, lluvia, tormenta): el texto es claro, así que el halo es pequeño y tenue.
+  const darkSky = !isDay || category === "rain" || category === "storm";
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
@@ -423,9 +425,13 @@ export const WeatherBackground = memo(function WeatherBackground({
         style={{
           x: glowX,
           y: glowY,
-          backgroundImage: `radial-gradient(circle at ${glow.pos}, ${glow.core} 0%, ${glow.mid} 16%, transparent 46%)`,
+          // De noche el texto es claro: el halo de la luna es más pequeño y tenue para no
+          // dejar una mancha luminosa justo detrás de él.
+          backgroundImage: !darkSky
+            ? `radial-gradient(circle at ${glow.pos}, ${glow.core} 0%, ${glow.mid} 16%, transparent 46%)`
+            : `radial-gradient(circle at ${glow.pos}, ${glow.core} 0%, ${glow.mid} 5%, transparent 21%)`,
           mixBlendMode: glow.blend,
-          opacity: category === "storm" ? 0.35 : 0.85,
+          opacity: category === "storm" ? 0.3 : darkSky ? 0.32 : 0.85,
           transition: "background-image 1.6s ease, opacity 1.6s ease",
         }}
       />
