@@ -49,6 +49,12 @@ const HIGHLIGHTS = [
   { label: "Lectura con IA", figure: "Claude", text: "Explica el tiempo en lenguaje natural, solo con datos calculados." },
 ] as const;
 
+// Cuenta de demostración: solo si el despliegue define ambas variables (en Vercel, no en el repo).
+// OJO: los valores VITE_* acaban en el JavaScript público; úsala con una cuenta sin datos propios.
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL?.trim() ?? "";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD ?? "";
+const HAS_DEMO = DEMO_EMAIL !== "" && DEMO_PASSWORD !== "";
+
 interface LoginPageProps {
   /** Pestaña con la que se abre (la landing la elige según el botón pulsado). */
   initialMode?: Mode;
@@ -90,6 +96,18 @@ export function LoginPage({ initialMode = "login", initialEmail = "", onBack }: 
       if (isRegister) await register(email.trim(), password, fullName.trim());
       else await login(email.trim(), password);
       // Al autenticarse, Root desmonta esta pantalla: no hay nada más que hacer.
+    } catch (err) {
+      setError(errorMessage(err));
+      setBusy(false);
+    }
+  };
+
+  const onDemo = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await login(DEMO_EMAIL, DEMO_PASSWORD);
     } catch (err) {
       setError(errorMessage(err));
       setBusy(false);
@@ -284,6 +302,22 @@ export function LoginPage({ initialMode = "login", initialEmail = "", onBack }: 
               {busy ? (isRegister ? "Creando cuenta…" : "Entrando…") : isRegister ? "Crear cuenta" : "Entrar"}
             </button>
           </form>
+
+          {HAS_DEMO && !isRegister && (
+            <div data-auth-in className="mt-4">
+              <button
+                type="button"
+                onClick={onDemo}
+                disabled={busy}
+                className="lp-btn-ghost w-full rounded-full px-7 py-3.5 text-sm font-semibold disabled:cursor-wait disabled:opacity-70"
+              >
+                Entrar con la cuenta de demostración
+              </button>
+              <p className="mt-2 text-center text-[11px] text-[var(--color-text-faint)]">
+                Un clic, sin escribir usuario ni contraseña.
+              </p>
+            </div>
+          )}
 
           <p data-auth-in className="mt-5 text-center text-xs text-[var(--color-text-faint)]">
             {isRegister ? "¿Ya tienes cuenta? " : "¿Aún no tienes cuenta? "}
